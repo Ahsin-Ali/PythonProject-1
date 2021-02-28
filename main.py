@@ -39,7 +39,7 @@ transaction_type = data[0:2].upper()
 
 if transaction_type == "NC":  # NC for Name change request
     customer_id = data[2:7]
-    if int(customer_id) in customer_number:
+    if customer_id.isdigit() and len(customer_id) == 5:
         full_name = data[7:]
         first_name = full_name[:full_name.find(" ")]
         middle_name = full_name[full_name.find(" "):full_name.rfind(" ")]
@@ -50,16 +50,16 @@ if transaction_type == "NC":  # NC for Name change request
         (customer_name.insert(i, revised_name))
         print(customer_name)
     else:
-        print("Customer number {0} is invalid.".format(customer_id))
+        print("Customer number {0} is invalid".format(customer_id))
 elif transaction_type == "NP":  # NP for New password request
     customer_id = data[2:7]
-    if int(customer_id) in customer_number:
+    if customer_id.isdigit() and len(customer_id) == 5:
         password = data[7:]
         password_is_valid = False
         length = len(password.strip())
         if length >= 6:
-            if password[0].isupper() and password[0].isalpha():  # 1st is Capital
-                if password[1].islower() and password[1].isalpha():  # 2nd is small
+            if password[0].isupper and password[0].isalpha():  # 1st is Capital
+                if password[1].islower and password[1].isalpha():  # 2nd is small
                     if password[2].isdigit():  # 3rd is digit
                         regex = re.compile('[!@#$%^&*()]')
                         if regex.search(password[3]) is not None:  # 4th is special
@@ -72,10 +72,10 @@ elif transaction_type == "NP":  # NP for New password request
         else:
             print("New password not secure. Request denied.")
     else:
-        print("Customer number {0} is invalid.".format(customer_id))
+        print("Customer number {0} is invalid".format(customer_id))
 elif transaction_type == "CO":  # CO for Customer order
     customer_id = data[2:7]
-    if int(customer_id) in customer_number:
+    if customer_id.isdigit() and len(customer_id) == 5:
         number_of_orders = data[7]
         input_order_date = data[8:]
         month = input_order_date[:2]
@@ -86,52 +86,43 @@ elif transaction_type == "CO":  # CO for Customer order
         order1 = input().upper()
         quantity_item1 = order1[:order1.find('^')]
         item_id1 = order1[order1.find('^') + 1:order1.rfind('^')]
-        if item_id1 in item_number:
-            i = item_number.index(item_id1)
-            price_item1 = item_price[i]
-            total_price_item1 = price_item1 * int(quantity_item1)
-            total_price_item2 = 0.0
-            item_description1 = item_description[i]
-            input_order_date = order1[order1.rfind('^') + 1:]
+        i = item_number.index(item_id1)
+        price_item1 = item_price[i]
+        total_price_item1 = price_item1 * int(quantity_item1)
+        total_price_item2 = 0.0
+        item_description1 = item_description[i]
+        input_order_date = order1[order1.rfind('^') + 1:]
+        month = input_order_date[:2]
+        day = input_order_date[2:4]
+        year = input_order_date[4:8]
+        request_date_item1 = month + '/' + day + '/' + year
+
+        if number_of_orders == '2':
+            order2 = input().upper()
+            quantity_item2 = order2[:order2.find('^')]
+            item_id2 = order2[order2.find('^') + 1:order2.rfind('^')]
+            i = item_number.index(item_id2)
+            price_item2 = item_price[i]
+            item_description2 = item_description[i]
+            total_price_item2 = price_item2 * int(quantity_item2)
+            input_order_date = order2[order2.rfind('^') + 1:]
             month = input_order_date[:2]
             day = input_order_date[2:4]
             year = input_order_date[4:8]
-            request_date_item1 = month + '/' + day + '/' + year
-            if number_of_orders == '2':
-                order2 = input().upper()
-                quantity_item2 = order2[:order2.find('^')]
-                item_id2 = order2[order2.find('^') + 1:order2.rfind('^')]
-                if item_id2 in item_number:
-                    i = item_number.index(item_id2)
-                    price_item2 = item_price[i]
-                    item_description2 = item_description[i]
-                    total_price_item2 = price_item2 * int(quantity_item2)
-                    input_order_date = order2[order2.rfind('^') + 1:]
-                    month = input_order_date[:2]
-                    day = input_order_date[2:4]
-                    year = input_order_date[4:8]
-                    request_date_item2 = month + '/' + day + '/' + year
-                else:
-                    print("Item number {0} is invalid".format(item_id2))
-                    exit()
-            print("{0:>11}{1:>15}".format("Order Date:", order_date))
-            print("{0:>11}{1:>15}{2:>30}".format("Customer:", customer_number[j], customer_name[j]))
-            print("")
-            print("{0:6}{1:18}{2:29}{3:17}{4:9}{5:8}{6:>11}".format("Ln#", "Item #", "Item Description", "Req Date", "Qty",
-                                                                   "Price", "Total"))
-            print("{0:6}{1:18}{2:28}{3:10}{4:>11}{5:>11}{6:>4}{7:>10.2f}".format(" 1", item_id1, item_description1, request_date_item1,
-                                                                   quantity_item1, str(price_item1),
-                                                                   "$", float(total_price_item1)))
-            if number_of_orders == '2':
-                print("{0:6}{1:18}{2:28}{3:10}{4:>11}{5:>11}{6:>4}{7:>10.2f}".format(" 2", item_id2, item_description2,
-                                                                                     request_date_item2,
-                                                                                     quantity_item2, str(price_item2),
-                                                                                     "$", float(total_price_item2)))
-            total = total_price_item1 + total_price_item2
-            print("")
-            print("{0:>80}{1:>18.2f}".format("Total", float(total)))
-        else:
-            print("Item number {0} is invalid".format(item_id1))
+            request_date_item2 = month + '/' + day + '/' + year
+        print("{0:11}{1:>15}".format("Order Date:", order_date))
+        print("{0:>11}{1:>15}{2:>30}".format("Customer:", customer_number[j], customer_name[j]))
+        print("{0:6}{1:18}{2:29}{3:17}{4:9}{5:14}{6:6}".format("Ln#", "Item #", "Item Description", "Req Date", "Qty",
+                                                               "Price", "Total "))
+        print("{0:6}{1:18}{2:29}{3:17}{4:9}{5:14}{6:6}".format("1", item_id1, item_description1, request_date_item1,
+                                                               quantity_item1, str(price_item1),
+                                                               '$ ' + str(total_price_item1)))
+        if number_of_orders == '2':
+            print("{0:6}{1:18}{2:29}{3:17}{4:9}{5:14}{6:6}".format("2", item_id2, item_description2, request_date_item2,
+                                                                   quantity_item2, str(price_item2),
+                                                                   '$ ' + str(total_price_item2)))
+        total = total_price_item1 + total_price_item2
+        print("{0:5}{1:>17}".format("Total", str(total)))
     else:
         print("Customer number {0} is invalid".format(customer_id))
 else:
